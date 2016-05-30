@@ -17,6 +17,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         mImageView= (ImageView) findViewById(R.id.iv_show);
         mAnimation= AnimationUtils.loadAnimation(this,R.anim.alpha);
+        mImageView.startAnimation(mAnimation);
         Handler handler=new Handler();
         handler.postDelayed(new Runnable() {
             @Override

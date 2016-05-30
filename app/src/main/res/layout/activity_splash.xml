@@ -45,12 +45,5 @@
             android:src="@mipmap/adware_style_default"
             android:contentDescription="Small icon 4"/>
     </LinearLayout>
-    <Button
-        android:id="@+id/btn_skip"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:text="跳过"
-        android:visibility="invisible"/>
 
 </RelativeLayout>

@@ -3,6 +3,7 @@ package edu.feicui.viewpagerdemo;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Handler;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
@@ -14,14 +15,15 @@ import android.widget.ImageView;
 
 import java.util.ArrayList;
 
+import edu.feicui.viewpagerdemo.utils.SPUtils;
+
 public class SplashActivity extends AppCompatActivity implements  ViewPager.OnPageChangeListener {
     public static final String SPLASH_CONFIG = "splash_config";
-    public static final String IS_FIRST_RUN  = "isFirstRun";
+    public static final boolean IS_FIRST_RUN  = true;
     ImageView icons0, icons1, icons2,icons3;
     private static final String TAG = "SlpashActivity";
     private ViewPager       mViewPager;
     private ArrayList<View> mList;
-    private Button          mBtnSkip;
     int[]       pics  = {R.mipmap.bd, R.mipmap.small,R.mipmap.wy, R.mipmap.welcome};
     ImageView[] icons = {icons0, icons1, icons2,icons3};
 
@@ -29,10 +31,9 @@ public class SplashActivity extends AppCompatActivity implements  ViewPager.OnPa
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
-        SharedPreferences preferences=getSharedPreferences(SPLASH_CONFIG, Context.MODE_PRIVATE);
-        boolean isFirstRun=preferences.getBoolean(IS_FIRST_RUN,true);
+        boolean isFirstRun = SPUtils.getBoolen(this, SPLASH_CONFIG);
 //        判断程序是否是第一次运行
-        if(!isFirstRun){
+        if(isFirstRun){
             Intent intent=new Intent(this,MainActivity.class);
             startActivity(intent);
             finish();
@@ -41,30 +42,15 @@ public class SplashActivity extends AppCompatActivity implements  ViewPager.OnPa
             initView();
         }
     }
-//    保存第一次运行的sp
-    private void savePreferences(){
-        SharedPreferences preferences = getSharedPreferences(SPLASH_CONFIG, Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = preferences.edit();
-        editor.putBoolean(IS_FIRST_RUN, false);
-        editor.apply();
-    }
+
     private void initView() {
         mList = new ArrayList<>();
         mViewPager= (ViewPager) findViewById(R.id.vp_guide);
-        mBtnSkip= (Button) findViewById(R.id.btn_skip);
         icons[0]= (ImageView) findViewById(R.id.icon1);
         icons[1]= (ImageView) findViewById(R.id.icon2);
         icons[2]= (ImageView) findViewById(R.id.icon3);
         icons[3]= (ImageView) findViewById(R.id.icon4);
-        mBtnSkip.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                savePreferences();
-                Intent intent = new Intent(SplashActivity.this, MainActivity.class);
-                startActivity(intent);
-                finish();
-            }
-        });
+
         for (int i = 0; i <pics.length ; i++) {
             ImageView iv=new ImageView(this);
             iv.setImageResource(pics[i]);
@@ -88,11 +74,19 @@ public class SplashActivity extends AppCompatActivity implements  ViewPager.OnPa
 
     @Override
     public void onPageSelected(int position) {
-//        设置按钮只在滑动到最后一页是显示
+//        设置pager在滑动到最后一页时跳转
         if(position==pics.length-1){
-            mBtnSkip.setVisibility(View.VISIBLE);
-        }else{
-            mBtnSkip.setVisibility(View.INVISIBLE);
+            Handler handler=new Handler();
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    SPUtils.putBoolen(SplashActivity.this,SPLASH_CONFIG,IS_FIRST_RUN);
+                    Intent intent = new Intent(SplashActivity.this, MainActivity.class);
+                    startActivity(intent);
+                    finish();
+                }
+            },1000);
+
         }
 // 更新下标图标   先把所有按钮图标颜色设为灰色，当按钮的ID和当前界面的ID相同时，把按钮颜色设为绿色
         for (int i = 0; i <icons.length ; i++) {
